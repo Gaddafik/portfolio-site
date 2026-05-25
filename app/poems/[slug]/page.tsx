@@ -1,45 +1,71 @@
-import { supabase } from '../../../utils/supabase'; // Notice the 3 sets of dots!
-import Link from 'next/link';
+import { supabase } from '../../../utils/supabase';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 
 export const revalidate = 0;
 
-export default async function NovelPage({ params }: { params: { slug: string } }) {
-  // In newer Next.js versions, we await the params
-  const { slug } = await params;
-
-  const { data: novel } = await supabase
-    .from('novels')
+export default async function IndividualPoemPage({ params }: { params: { slug: string } }) {
+  // Fetch the specific poem using the URL slug
+  const { data: poem } = await supabase
+    .from('poems')
     .select('*')
-    .eq('slug', slug)
+    .eq('slug', params.slug)
     .single();
 
-  if (!novel) {
-    notFound(); // Automatically shows a 404 page if the book doesn't exist
+  // If someone types a bad URL, show the standard 404 page
+  if (!poem) {
+    notFound();
   }
 
+  // Fetch author name
+  const { data: profile } = await supabase
+    .from('author_profile')
+    .select('full_name')
+    .limit(1)
+    .single();
+  
+  const authorName = profile?.full_name || 'Gaddafi Kasimu Ali';
+
   return (
-    <main className="min-h-screen bg-slate-50 py-16 px-8 text-slate-900">
-      <div className="max-w-3xl mx-auto">
-        <Link href="/novels" className="text-blue-700 hover:underline font-semibold mb-8 inline-block">
-          &larr; Back to Books
-        </Link>
-        
-        <article className="bg-white p-10 rounded-xl shadow-sm border border-slate-200">
-          <div className="mb-8 border-b pb-8">
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-4">{novel.title}</h1>
-            <span className="bg-blue-100 text-blue-900 text-sm font-bold px-4 py-2 rounded-full uppercase tracking-wider">
-              Status: {novel.status}
-            </span>
+    <main className="min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white pb-32">
+      <header className="w-full border-b border-zinc-200 bg-white">
+        <div className="max-w-4xl mx-auto py-6 px-8 flex justify-between items-center text-xs font-bold tracking-widest uppercase text-zinc-500">
+          <Link href="/poems" className="hover:text-zinc-900 transition-colors">&larr; Back to Poetry</Link>
+          <span>{poem.publication_year || new Date().getFullYear()}</span>
+        </div>
+      </header>
+
+      <article className="max-w-3xl mx-auto px-8 pt-20">
+        {/* Editorial Metadata */}
+        <div className="mb-12 text-center">
+          {poem.theme && (
+            <div className="inline-block border border-zinc-200 bg-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase text-zinc-500 shadow-sm mb-6">
+              Theme: {poem.theme}
+            </div>
+          )}
+          <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight text-zinc-900 mb-6 leading-tight">
+            {poem.title}
+          </h1>
+          <div className="w-16 h-1 bg-zinc-900 mx-auto mb-6"></div>
+          <p className="text-sm font-bold tracking-widest uppercase text-zinc-400">
+            By {authorName}
+          </p>
+        </div>
+
+        {/* The Poem Content */}
+        <div className="bg-white border border-zinc-200 p-10 md:p-16 shadow-xl">
+          <div className="font-serif text-lg md:text-xl leading-loose text-zinc-800 whitespace-pre-wrap">
+            {poem.content}
           </div>
-          
-          <div className="prose prose-lg max-w-none text-slate-700 leading-relaxed">
-            <h3 className="text-xl font-bold mb-4 text-slate-900">Synopsis</h3>
-            {/* whitespace-pre-wrap ensures your paragraph breaks are respected */}
-            <p className="whitespace-pre-wrap">{novel.synopsis}</p>
-          </div>
-        </article>
-      </div>
+        </div>
+
+        {/* Footer actions */}
+        <div className="mt-16 text-center border-t border-zinc-200 pt-12">
+          <Link href="/poems" className="inline-block bg-zinc-900 text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-zinc-800 transition-all shadow-xl hover:-translate-y-1">
+            Read More Poetry
+          </Link>
+        </div>
+      </article>
     </main>
   );
 }
