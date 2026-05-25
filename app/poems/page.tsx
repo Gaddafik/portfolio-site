@@ -1,59 +1,60 @@
 import { supabase } from '../../utils/supabase';
 import Link from 'next/link';
 
+// Force live data, never cache
+export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function PoemsPage() {
-  // Fetch poems and the author profile
-  const { data: poems } = await supabase.from('poems').select('*').order('created_at', { ascending: false });
-  const { data: profile } = await supabase.from('author_profile').select('full_name').single();
-  
-  const authorName = profile?.full_name || 'Gaddafi Kasimu Ali';
+  const { data: poems } = await supabase
+    .from('poems')
+    .select('*')
+    .order('created_at', { ascending: false });
 
   return (
-    <main className="min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white pb-24">
-      <header className="w-full border-b border-zinc-200 bg-white">
-        <div className="max-w-6xl mx-auto py-6 px-8 flex justify-between items-center text-xs font-bold tracking-widest uppercase text-zinc-500">
-          <Link href="/" className="hover:text-zinc-900 transition-colors">&larr; Home</Link>
-          <span>Poetry</span>
+    <main className="min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white pb-32">
+      <header className="w-full border-b border-zinc-200 bg-white pt-32 pb-16 px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-serif font-black tracking-tight text-zinc-900 mb-6">Poetry Collection</h1>
+          <p className="text-xl text-zinc-500 font-light max-w-2xl mx-auto">
+            Explorations of economy, resilience, and the human experience.
+          </p>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-8 pt-20">
-        <h1 className="text-5xl md:text-6xl font-serif font-black tracking-tight text-zinc-900 mb-4">Selected Poems</h1>
-        <p className="text-xl text-zinc-600 font-light mb-16 max-w-2xl">Exploring the human experience through verse.</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="max-w-4xl mx-auto px-8 pt-16">
+        <div className="grid grid-cols-1 gap-12">
           {poems?.map((poem) => (
-            <Link key={poem.id} href={`/poems/${poem.slug}`} className="group block">
-              <article className="bg-white border border-zinc-200 p-8 h-full flex flex-col justify-between hover:border-zinc-400 hover:shadow-xl transition-all relative overflow-hidden">
-                
-                {/* Professional Theme Badge */}
-                {poem.theme && (
-                  <div className="absolute top-0 right-0 bg-zinc-100 text-zinc-500 text-[10px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-zinc-200">
-                    {poem.theme}
-                  </div>
-                )}
-
+            <article key={poem.id} className="bg-white border border-zinc-200 p-8 md:p-12 shadow-sm hover:shadow-xl transition-shadow">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-serif font-black leading-tight mb-4 group-hover:underline decoration-2 underline-offset-4 mt-2">{poem.title}</h2>
-                  <p className="text-zinc-600 text-sm line-clamp-4 leading-relaxed mb-6 font-serif italic">"{poem.content.substring(0, 100)}..."</p>
+                  <h2 className="text-3xl font-serif font-black mb-2">{poem.title}</h2>
+                  {poem.theme && (
+                    <span className="text-xs font-bold tracking-widest uppercase text-zinc-400">Theme: {poem.theme}</span>
+                  )}
                 </div>
-                
-                <div className="flex flex-col pt-6 border-t border-zinc-100 gap-2">
-                  {/* Dynamic Author and Year Attribution */}
-                  <div className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                    By {authorName} <span className="mx-1">•</span> {poem.publication_year}
-                  </div>
-                  <div className="text-xs font-bold uppercase tracking-widest text-zinc-900">
-                    Read Poem &rarr;
-                  </div>
-                </div>
-              </article>
-            </Link>
+                {poem.publication_year && (
+                  <span className="text-xs font-bold text-zinc-400">{poem.publication_year}</span>
+                )}
+              </div>
+              
+              <p className="font-serif text-lg text-zinc-600 line-clamp-3 mb-8 whitespace-pre-wrap">
+                {poem.content}
+              </p>
+              
+              <Link 
+                href={`/poems/${poem.slug}`} 
+                className="inline-block border border-zinc-900 text-zinc-900 px-6 py-3 text-xs font-bold tracking-widest uppercase hover:bg-zinc-900 hover:text-white transition-colors"
+              >
+                Read Full Poem &rarr;
+              </Link>
+            </article>
           ))}
+
           {(!poems || poems.length === 0) && (
-            <p className="text-zinc-500 italic font-serif">No poetry published yet.</p>
+            <div className="text-center py-20 text-zinc-500 font-bold tracking-widest uppercase text-sm">
+              No poetry published yet.
+            </div>
           )}
         </div>
       </div>
