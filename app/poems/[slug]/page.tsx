@@ -4,25 +4,20 @@ import Link from 'next/link';
 
 export const revalidate = 0;
 
-// Correct way to handle params in modern Next.js
 export default async function IndividualPoemPage({ 
   params 
 }: { 
   params: Promise<{ slug: string }> 
 }) {
-  // Await the params first
   const { slug } = await params;
 
-  // Fetch the specific poem
   const { data: poem } = await supabase
     .from('poems')
     .select('*')
     .eq('slug', slug)
     .single();
 
-  if (!poem) {
-    notFound();
-  }
+  if (!poem) notFound();
 
   const { data: profile } = await supabase
     .from('author_profile')
@@ -33,39 +28,40 @@ export default async function IndividualPoemPage({
   const authorName = profile?.full_name || 'Gaddafi Kasimu Ali';
 
   return (
-    <main className="min-h-screen bg-[#F8F9FA] text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white pb-32">
-      <header className="w-full border-b border-zinc-200 bg-white">
-        <div className="max-w-4xl mx-auto py-6 px-8 flex justify-between items-center text-xs font-bold tracking-widest uppercase text-zinc-500">
-          <Link href="/poems" className="hover:text-zinc-900 transition-colors">&larr; Back to Poetry</Link>
-          <span>{poem.publication_year || new Date().getFullYear()}</span>
-        </div>
-      </header>
+    <main className="min-h-screen bg-[#FDFDFC] text-zinc-900 font-sans selection:bg-amber-100 pb-32">
+      {/* Subtle Navigation */}
+      <nav className="max-w-4xl mx-auto px-8 pt-12 pb-8 flex justify-between items-center text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400">
+        <Link href="/poems" className="hover:text-zinc-900 transition-colors">&larr; Back to Library</Link>
+      </nav>
 
-      <article className="max-w-3xl mx-auto px-8 pt-20">
-        <div className="mb-12 text-center">
+      <article className="max-w-2xl mx-auto px-8 pt-12">
+        {/* Title Block */}
+        <div className="mb-20">
           {poem.theme && (
-            <div className="inline-block border border-zinc-200 bg-white px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase text-zinc-500 shadow-sm mb-6">
-              Theme: {poem.theme}
-            </div>
+            <span className="inline-block text-[10px] font-bold tracking-[0.2em] uppercase text-amber-600 mb-6 border-b border-amber-600 pb-1">
+              {poem.theme}
+            </span>
           )}
-          <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight text-zinc-900 mb-6 leading-tight">
+          <h1 className="text-5xl md:text-6xl font-serif font-light tracking-tight text-zinc-900 mb-8 leading-[1.1]">
             {poem.title}
           </h1>
-          <div className="w-16 h-1 bg-zinc-900 mx-auto mb-6"></div>
-          <p className="text-sm font-bold tracking-widest uppercase text-zinc-400">
-            By {authorName}
+          <p className="text-xs font-bold tracking-[0.2em] uppercase text-zinc-500">
+            {authorName} · {poem.publication_year || new Date().getFullYear()}
           </p>
         </div>
 
-        <div className="bg-white border border-zinc-200 p-10 md:p-16 shadow-xl">
-          <div className="font-serif text-lg md:text-xl leading-loose text-zinc-800 whitespace-pre-wrap">
-            {poem.content}
-          </div>
+        {/* The Poem - Increased line height for professional legibility */}
+        <div className="font-serif text-xl md:text-2xl leading-[2] text-zinc-700 whitespace-pre-wrap selection:bg-amber-100">
+          {poem.content}
         </div>
 
-        <div className="mt-16 text-center border-t border-zinc-200 pt-12">
-          <Link href="/poems" className="inline-block bg-zinc-900 text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-zinc-800 transition-all shadow-xl hover:-translate-y-1">
-            Read More Poetry
+        {/* Footer */}
+        <div className="mt-32 border-t border-zinc-100 pt-16 text-center">
+          <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400 mb-8">
+            End of Verse
+          </p>
+          <Link href="/poems" className="text-xs font-bold tracking-[0.2em] uppercase text-zinc-900 border-b border-zinc-900 pb-1 hover:text-amber-600 hover:border-amber-600 transition-all">
+            Continue Reading &rarr;
           </Link>
         </div>
       </article>
