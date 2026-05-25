@@ -1,7 +1,6 @@
 import { supabase } from '../../utils/supabase';
 import Link from 'next/link';
 
-
 export const dynamic = 'force-dynamic';
 export const revalidate = 0; 
 
