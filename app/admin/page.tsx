@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../utils/supabase';
 import { useRouter } from 'next/navigation';
 
+
 export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,7 @@ export default function AdminDashboard() {
   // Theme and Year States
   const [theme, setTheme] = useState('');
   const [year, setYear] = useState('');
+  
 
   // Profile Forms States
   const [profileData, setProfileData] = useState({ id: '', full_name: '', detailed_bio: '', email: '', linkedin_url: '', profile_image_url: '' });
